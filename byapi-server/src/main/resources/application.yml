@@ -1,3 +1,6 @@
+server:
+  port: 9000
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -27,5 +30,12 @@ byapi:
     path:
       domain: http://localhost:8080
       address: D:\idea\project\byapi-backend\byapi-server\src\main\resources\images
-server:
-  port: 9010
+
+dubbo:
+  application:
+    name: provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: nacos://localhost:8848

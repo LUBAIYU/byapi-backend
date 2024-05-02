@@ -1,10 +1,21 @@
 server:
-  port: 9000
+  port: 9010
 spring:
+  main:
+    web-application-type: reactive
   cloud:
     gateway:
       routes:
-        - id: byapi-server
-          uri: http://localhost:9010
+        - id: byapi-interface
+          uri: http://localhost:9020
           predicates:
             - Path=/**
+
+dubbo:
+  application:
+    name: consumer
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: nacos://localhost:8848

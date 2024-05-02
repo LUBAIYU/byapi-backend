@@ -1,7 +1,6 @@
 package com.example.client;
 
 import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpUtil;
 import com.example.util.SignUtil;
 
 import java.util.HashMap;
@@ -23,6 +22,11 @@ public class ByApiClient {
      */
     private final String secretKey;
 
+    /**
+     * 网关地址
+     */
+    private static final String GATEWAY_HOST = "http://localhost:9010";
+
     public ByApiClient(String accessKey, String secretKey) {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
@@ -35,8 +39,12 @@ public class ByApiClient {
      * @return 名称
      */
     public String getName(String name) {
+        //添加请求头
+        Map<String, String> headerMap = this.getHeaderMap(name);
         //发送请求
-        HttpRequest httpRequest = HttpRequest.get("http://localhost:9020/actual/get/name").form("name",name);
+        HttpRequest httpRequest = HttpRequest.get(GATEWAY_HOST + "/actual/get/name")
+                .form("name", name)
+                .addHeaders(headerMap);
         //返回请求数据
         return httpRequest.execute().body();
     }
@@ -45,8 +53,6 @@ public class ByApiClient {
         Map<String, String> map = new HashMap<>(3);
         //签名
         map.put("accessKey", accessKey);
-        //请求参数
-        map.put("body", body);
         //密钥
         map.put("secretKey", SignUtil.generateSign(body, secretKey));
         return map;
