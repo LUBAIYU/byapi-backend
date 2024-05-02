@@ -1,6 +1,7 @@
 package com.example.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
@@ -19,9 +20,9 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         if (interfaceInfoId <= 0 || userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LambdaUpdateWrapper<UserInterfaceInfo> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(UserInterfaceInfo::getInterfaceInfoId, interfaceInfoId);
-        wrapper.eq(UserInterfaceInfo::getUserId, userId);
+        UpdateWrapper<UserInterfaceInfo> wrapper = new UpdateWrapper<>();
+        wrapper.eq("interfaceInfo_id", interfaceInfoId);
+        wrapper.eq("user_id", userId);
         wrapper.setSql("total_num=total_num + 1, left_num=left_num - 1");
         return this.update(wrapper);
     }
