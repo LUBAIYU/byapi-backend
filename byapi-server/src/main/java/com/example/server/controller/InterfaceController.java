@@ -1,0 +1,97 @@
+package com.example.server.controller;
+
+import com.example.common.enums.ErrorCode;
+import com.example.common.exception.BusinessException;
+import com.example.common.model.dto.InterfaceAddDto;
+import com.example.common.model.dto.InterfaceInvokeDto;
+import com.example.common.model.dto.InterfacePageDto;
+import com.example.common.model.dto.InterfaceUpdateDto;
+import com.example.common.model.entity.InterfaceInfo;
+import com.example.common.utils.PageBean;
+import com.example.common.utils.Result;
+import com.example.server.service.InterfaceService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * @author by
+ */
+@RestController
+@RequestMapping("/interface")
+public class InterfaceController {
+
+    @Resource
+    private InterfaceService interfaceService;
+
+    @PostMapping("/add")
+    public Result<Void> addInterface(@RequestBody InterfaceAddDto interfaceAddDto) {
+        if (interfaceAddDto == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        interfaceService.addInterface(interfaceAddDto);
+        return Result.success();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public Result<Void> deleteInterface(@PathVariable Long id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        interfaceService.deleteInterface(id);
+        return Result.success();
+    }
+
+    @PutMapping("/update")
+    public Result<Void> updateInterface(@RequestBody InterfaceUpdateDto interfaceUpdateDto) {
+        if (interfaceUpdateDto == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        interfaceService.updateInterface(interfaceUpdateDto);
+        return Result.success();
+    }
+
+    @GetMapping("/page")
+    public Result<PageBean<InterfaceInfo>> listInterfacesByPage(InterfacePageDto interfacePageDto) {
+        if (interfacePageDto == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        PageBean<InterfaceInfo> pageBean = interfaceService.listInterfacesByPage(interfacePageDto);
+        return Result.success(pageBean);
+    }
+
+    @PutMapping("/alter/status")
+    public Result<Void> alterStatus(Long id, Integer status) {
+        if (id == null || status == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        interfaceService.alterStatus(id, status);
+        return Result.success();
+    }
+
+    @GetMapping("/get/{id}")
+    public Result<InterfaceInfo> getInterfaceById(@PathVariable Long id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        InterfaceInfo interfaceInfo = interfaceService.getById(id);
+        return Result.success(interfaceInfo);
+    }
+
+    @PostMapping("/invoke")
+    public Result<Object> invokeInterface(@RequestBody InterfaceInvokeDto interfaceInvokeDto, HttpServletRequest request) {
+        if (interfaceInvokeDto == null || request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Object res = interfaceService.invokeInterface(interfaceInvokeDto, request);
+        return Result.success(res);
+    }
+}

@@ -1,0 +1,10 @@
+server:
+  port: 9000
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: byapi-server
+          uri: http://localhost:9010
+          predicates:
+            - Path=/**

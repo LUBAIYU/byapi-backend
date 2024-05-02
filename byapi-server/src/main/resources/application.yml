@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/byapi?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+  jackson:
+    time-zone: GMT+8
+    date-format: "yyyy-MM-dd HH:mm:ss"
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    servlet:
+      path: /api
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+byapi:
+  server:
+    path:
+      domain: http://localhost:8080
+      address: D:\idea\project\byapi-backend\byapi-server\src\main\resources\images
+server:
+  port: 9010
