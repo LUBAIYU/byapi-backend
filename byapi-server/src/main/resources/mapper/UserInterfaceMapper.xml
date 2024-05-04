@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.example.common.model.entity.UserInterfaceInfo">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
-            <result property="interfaceInfoId" column="interfaceInfo_id" jdbcType="BIGINT"/>
+            <result property="interfaceId" column="interface_id" jdbcType="BIGINT"/>
             <result property="totalNum" column="total_num" jdbcType="INTEGER"/>
             <result property="leftNum" column="left_num" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -16,7 +16,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,interfaceInfo_id,
+        id,user_id,interface_id,
         total_num,left_num,create_time,
         update_time,is_deleted
     </sql>

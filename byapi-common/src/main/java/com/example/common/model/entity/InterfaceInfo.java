@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * @author by
  */
-@TableName(value = "interface_info")
+@TableName(value = "interface")
 @Data
 public class InterfaceInfo implements Serializable {
     /**

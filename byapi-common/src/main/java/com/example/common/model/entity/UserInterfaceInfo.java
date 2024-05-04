@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * @author by
  */
-@TableName(value = "user_interface_info")
+@TableName(value = "user_interface")
 @Data
 public class UserInterfaceInfo implements Serializable {
     /**
@@ -32,7 +32,7 @@ public class UserInterfaceInfo implements Serializable {
     /**
      * 接口ID
      */
-    private Long interfaceInfoId;
+    private Long interfaceId;
 
     /**
      * 总调用次数

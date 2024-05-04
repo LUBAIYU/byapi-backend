@@ -1,8 +1,7 @@
 package com.example.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.common.constant.CommonConsts;
@@ -31,13 +30,13 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
     private UserService userService;
 
     @Override
-    public boolean invokeCount(long interfaceInfoId, long userId) {
-        if (interfaceInfoId <= 0 || userId <= 0) {
+    public boolean invokeCount(long interfaceId, long userId) {
+        if (interfaceId <= 0 || userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        UpdateWrapper<UserInterfaceInfo> wrapper = new UpdateWrapper<>();
-        wrapper.eq("interfaceInfo_id", interfaceInfoId);
-        wrapper.eq("user_id", userId);
+        LambdaUpdateWrapper<UserInterfaceInfo> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(UserInterfaceInfo::getInterfaceId, interfaceId);
+        wrapper.eq(UserInterfaceInfo::getUserId, userId);
         wrapper.setSql("total_num=total_num + 1, left_num=left_num - 1");
         return this.update(wrapper);
     }
@@ -48,9 +47,9 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         UserVo userVo = userService.getLoginUser(request);
         Long userId = userVo.getId();
         //查询记录是否存在
-        QueryWrapper<UserInterfaceInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
-        wrapper.eq("interfaceInfo_id", interfaceId);
+        LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserInterfaceInfo::getUserId, userId);
+        wrapper.eq(UserInterfaceInfo::getInterfaceId, interfaceId);
         UserInterfaceInfo userInterfaceInfo = this.getOne(wrapper);
         if (userInterfaceInfo != null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.EXIST_ERROR);
@@ -58,7 +57,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         //插入记录
         userInterfaceInfo = new UserInterfaceInfo();
         userInterfaceInfo.setUserId(userId);
-        userInterfaceInfo.setInterfaceInfoId(interfaceId);
+        userInterfaceInfo.setInterfaceId(interfaceId);
         userInterfaceInfo.setTotalNum(0);
         userInterfaceInfo.setLeftNum(10);
         this.save(userInterfaceInfo);
@@ -111,7 +110,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(id != null, UserInterfaceInfo::getId, id);
         wrapper.eq(userId != null, UserInterfaceInfo::getUserId, userId);
-        wrapper.eq(interfaceInfoId != null, UserInterfaceInfo::getInterfaceInfoId, interfaceInfoId);
+        wrapper.eq(interfaceInfoId != null, UserInterfaceInfo::getInterfaceId, interfaceInfoId);
         this.page(page, wrapper);
         //返回
         return PageBean.of(page.getTotal(), page.getRecords());
