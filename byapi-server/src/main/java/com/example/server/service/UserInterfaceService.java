@@ -16,11 +16,10 @@ public interface UserInterfaceService extends IService<UserInterfaceInfo> {
     /**
      * 统计接口调用次数
      *
-     * @param interfaceInfoId 接口ID
-     * @param userId          用户ID
-     * @return 布尔值
+     * @param interfaceId 接口ID
+     * @param userId      用户ID
      */
-    public boolean invokeCount(long interfaceInfoId, long userId);
+    void invokeCount(long interfaceId, long userId);
 
     /**
      * 添加用户接口关联信息
@@ -41,7 +40,7 @@ public interface UserInterfaceService extends IService<UserInterfaceInfo> {
      * 条件分页查询
      *
      * @param userInterfacePageDto 查询请求体
-     * @return
+     * @return 查询数据
      */
     PageBean<UserInterfaceInfo> pageUserInterfaces(UserInterfacePageDto userInterfacePageDto);
 }

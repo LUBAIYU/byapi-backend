@@ -30,7 +30,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
     private UserService userService;
 
     @Override
-    public boolean invokeCount(long interfaceId, long userId) {
+    public void invokeCount(long interfaceId, long userId) {
         if (interfaceId <= 0 || userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -38,7 +38,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         wrapper.eq(UserInterfaceInfo::getInterfaceId, interfaceId);
         wrapper.eq(UserInterfaceInfo::getUserId, userId);
         wrapper.setSql("total_num=total_num + 1, left_num=left_num - 1");
-        return this.update(wrapper);
+        this.update(wrapper);
     }
 
     @Override

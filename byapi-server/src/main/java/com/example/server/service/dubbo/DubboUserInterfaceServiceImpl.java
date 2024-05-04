@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 /**
  * 对外暴露的Dubbo服务
+ *
  * @author by
  */
 @DubboService
@@ -19,12 +20,11 @@ public class DubboUserInterfaceServiceImpl implements DubboUserInterfaceService 
     /**
      * 统计接口调用次数
      *
-     * @param interfaceInfoId 接口ID
-     * @param userId          用户ID
-     * @return 布尔值
+     * @param interfaceId 接口ID
+     * @param userId      用户ID
      */
     @Override
-    public boolean invokeCount(long interfaceInfoId, long userId) {
-        return userInterfaceService.invokeCount(interfaceInfoId, userId);
+    public void invokeCount(long interfaceId, long userId) {
+        userInterfaceService.invokeCount(interfaceId, userId);
     }
 }
