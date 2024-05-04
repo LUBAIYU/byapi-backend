@@ -6,6 +6,7 @@ import com.example.common.model.dto.UserPageDto;
 import com.example.common.model.dto.UserUpdateDto;
 import com.example.common.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.common.model.vo.KeyVo;
 import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,4 +81,12 @@ public interface UserService extends IService<User> {
      * @param response 响应对象
      */
     void getAvatar(String fileName, HttpServletResponse response);
+
+    /**
+     * 给指定用户分发密钥
+     *
+     * @param request 请求对象
+     * @return 密钥对
+     */
+    KeyVo applyKey(HttpServletRequest request);
 }

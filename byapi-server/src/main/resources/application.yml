@@ -28,7 +28,7 @@ mybatis-plus:
 byapi:
   server:
     path:
-      domain: http://localhost:8080
+      domain: http://localhost:9000/api
       address: D:\idea\project\byapi-backend\byapi-server\src\main\resources\images
 
 dubbo:

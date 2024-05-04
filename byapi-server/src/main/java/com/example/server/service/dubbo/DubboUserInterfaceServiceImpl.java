@@ -1,6 +1,6 @@
-package com.example.server.service.inner;
+package com.example.server.service.dubbo;
 
-import com.example.common.service.InnerUserInterfaceService;
+import com.example.common.service.DubboUserInterfaceService;
 import com.example.server.service.UserInterfaceService;
 import org.apache.dubbo.config.annotation.DubboService;
 
@@ -11,7 +11,7 @@ import javax.annotation.Resource;
  * @author by
  */
 @DubboService
-public class InnerUserInterfaceServiceImpl implements InnerUserInterfaceService {
+public class DubboUserInterfaceServiceImpl implements DubboUserInterfaceService {
 
     @Resource
     private UserInterfaceService userInterfaceService;

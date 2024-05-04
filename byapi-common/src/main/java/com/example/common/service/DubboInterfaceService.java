@@ -5,7 +5,7 @@ import com.example.common.model.entity.InterfaceInfo;
 /**
  * @author by
  */
-public interface InnerInterfaceService {
+public interface DubboInterfaceService {
 
     /**
      * 根据url和method获取接口信息

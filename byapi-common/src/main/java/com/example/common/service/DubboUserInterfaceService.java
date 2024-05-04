@@ -3,7 +3,7 @@ package com.example.common.service;
 /**
  * @author by
  */
-public interface InnerUserInterfaceService {
+public interface DubboUserInterfaceService {
 
     /**
      * 统计接口调用次数

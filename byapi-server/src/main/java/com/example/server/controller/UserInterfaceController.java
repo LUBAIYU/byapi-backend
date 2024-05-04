@@ -1,0 +1,73 @@
+package com.example.server.controller;
+
+import com.example.common.annotation.LoginCheck;
+import com.example.common.annotation.MustAdmin;
+import com.example.common.enums.ErrorCode;
+import com.example.common.exception.BusinessException;
+import com.example.common.model.dto.UserInterfacePageDto;
+import com.example.common.model.dto.UserInterfaceUpdateDto;
+import com.example.common.model.entity.UserInterfaceInfo;
+import com.example.common.utils.PageBean;
+import com.example.common.utils.Result;
+import com.example.server.service.UserInterfaceService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * @author by
+ */
+@RestController
+@RequestMapping("/userInterface")
+public class UserInterfaceController {
+
+    @Resource
+    private UserInterfaceService userInterfaceService;
+
+    @PostMapping("/add")
+    @LoginCheck
+    public Result<Void> addUserInterface(Long interfaceId, HttpServletRequest request) {
+        if (interfaceId == null || interfaceId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userInterfaceService.addUserInterface(interfaceId, request);
+        return Result.success();
+    }
+
+    @DeleteMapping("/delete")
+    @MustAdmin
+    public Result<Void> delUserInterface(Long id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userInterfaceService.removeById(id);
+        return Result.success();
+    }
+
+    @PutMapping("/update")
+    @MustAdmin
+    public Result<Void> updateUserInterface(@RequestBody UserInterfaceUpdateDto userInterfaceUpdateDto) {
+        if (userInterfaceUpdateDto == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userInterfaceService.updateUserInterface(userInterfaceUpdateDto);
+        return Result.success();
+    }
+
+    @GetMapping("/page")
+    @MustAdmin
+    public Result<PageBean<UserInterfaceInfo>> pageUserInterfaces(UserInterfacePageDto userInterfacePageDto) {
+        if (userInterfacePageDto == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        PageBean<UserInterfaceInfo> pageBean = userInterfaceService.pageUserInterfaces(userInterfacePageDto);
+        return Result.success(pageBean);
+    }
+}

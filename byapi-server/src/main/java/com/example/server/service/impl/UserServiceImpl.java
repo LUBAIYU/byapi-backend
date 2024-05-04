@@ -17,6 +17,7 @@ import com.example.common.model.dto.RegisterDto;
 import com.example.common.model.dto.UserPageDto;
 import com.example.common.model.dto.UserUpdateDto;
 import com.example.common.model.entity.User;
+import com.example.common.model.vo.KeyVo;
 import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.server.mapper.UserMapper;
@@ -262,6 +263,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.error("文件读取失败", e);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.IMAGE_READ_ERROR);
         }
+    }
+
+    @Override
+    public KeyVo applyKey(HttpServletRequest request) {
+        //获取登录用户ID
+        UserVo userVo = this.getLoginUser(request);
+        Long userId = userVo.getId();
+        //判断用户是否存在
+        User user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        //给用户生成随机密钥
+        String accessKey = RandomUtil.randomString(32);
+        String secretKey = RandomUtil.randomString(32);
+        //保存密钥
+        user.setAccessKey(accessKey);
+        user.setSecretKey(secretKey);
+        this.updateById(user);
+        //返回生成的密钥
+        KeyVo keyVo = new KeyVo();
+        keyVo.setAccessKey(accessKey);
+        keyVo.setSecretKey(secretKey);
+        return keyVo;
     }
 }
 

@@ -1,5 +1,7 @@
 package com.example.server.controller;
 
+import com.example.common.annotation.LoginCheck;
+import com.example.common.annotation.MustAdmin;
 import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
 import com.example.common.model.dto.InterfaceAddDto;
@@ -33,6 +35,7 @@ public class InterfaceController {
     private InterfaceService interfaceService;
 
     @PostMapping("/add")
+    @MustAdmin
     public Result<Void> addInterface(@RequestBody InterfaceAddDto interfaceAddDto) {
         if (interfaceAddDto == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -42,6 +45,7 @@ public class InterfaceController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @MustAdmin
     public Result<Void> deleteInterface(@PathVariable Long id) {
         if (id == null || id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -51,6 +55,7 @@ public class InterfaceController {
     }
 
     @PutMapping("/update")
+    @MustAdmin
     public Result<Void> updateInterface(@RequestBody InterfaceUpdateDto interfaceUpdateDto) {
         if (interfaceUpdateDto == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -60,6 +65,7 @@ public class InterfaceController {
     }
 
     @GetMapping("/page")
+    @LoginCheck
     public Result<PageBean<InterfaceInfo>> listInterfacesByPage(InterfacePageDto interfacePageDto) {
         if (interfacePageDto == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -69,6 +75,7 @@ public class InterfaceController {
     }
 
     @PutMapping("/alter/status")
+    @MustAdmin
     public Result<Void> alterStatus(Long id, Integer status) {
         if (id == null || status == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -78,6 +85,7 @@ public class InterfaceController {
     }
 
     @GetMapping("/get/{id}")
+    @LoginCheck
     public Result<InterfaceInfo> getInterfaceById(@PathVariable Long id) {
         if (id == null || id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -87,6 +95,7 @@ public class InterfaceController {
     }
 
     @PostMapping("/invoke")
+    @LoginCheck
     public Result<Object> invokeInterface(@RequestBody InterfaceInvokeDto interfaceInvokeDto, HttpServletRequest request) {
         if (interfaceInvokeDto == null || request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);

@@ -5,7 +5,7 @@ import com.example.common.model.entity.User;
 /**
  * @author by
  */
-public interface InnerUserService {
+public interface DubboUserService {
 
     /**
      * 根据accessKey获取用户信息

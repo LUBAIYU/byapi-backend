@@ -1,6 +1,8 @@
 package com.example.server.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.example.common.annotation.LoginCheck;
+import com.example.common.annotation.MustAdmin;
 import com.example.common.constant.UserConsts;
 import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
@@ -9,6 +11,7 @@ import com.example.common.model.dto.RegisterDto;
 import com.example.common.model.dto.UserPageDto;
 import com.example.common.model.dto.UserUpdateDto;
 import com.example.common.model.entity.User;
+import com.example.common.model.vo.KeyVo;
 import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.common.utils.Result;
@@ -47,6 +50,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
+    @LoginCheck
     public Result<Void> userLogout(HttpServletRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -74,6 +78,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @MustAdmin
     public Result<Void> deleteUser(@PathVariable Long id) {
         if (id == null || id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -83,6 +88,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
+    @LoginCheck
     public Result<Void> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
         if (userUpdateDto == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -92,6 +98,7 @@ public class UserController {
     }
 
     @GetMapping("/page")
+    @MustAdmin
     public Result<PageBean<User>> listUsersByPage(UserPageDto userPageDto) {
         if (userPageDto == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -101,6 +108,7 @@ public class UserController {
     }
 
     @PutMapping("/alter/status")
+    @MustAdmin
     public Result<Void> alterStatus(Long id, Integer status) {
         if (id == null || status == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -110,6 +118,7 @@ public class UserController {
     }
 
     @PostMapping("/upload/avatar")
+    @LoginCheck
     public Result<String> uploadAvatar(MultipartFile multipartFile) {
         if (multipartFile == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -119,10 +128,21 @@ public class UserController {
     }
 
     @GetMapping("/get/avatar/{fileName}")
+    @LoginCheck
     public void getAvatar(@PathVariable String fileName, HttpServletResponse response) {
         if (StrUtil.isBlank(fileName) || response == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         userService.getAvatar(fileName, response);
+    }
+
+    @PostMapping("/apply/key")
+    @LoginCheck
+    public Result<KeyVo> applyKey(HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        KeyVo keyVo = userService.applyKey(request);
+        return Result.success(keyVo);
     }
 }

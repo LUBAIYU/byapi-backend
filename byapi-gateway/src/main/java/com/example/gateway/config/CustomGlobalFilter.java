@@ -3,9 +3,9 @@ package com.example.gateway.config;
 import com.example.common.constant.InterfaceConsts;
 import com.example.common.model.entity.InterfaceInfo;
 import com.example.common.model.entity.User;
-import com.example.common.service.InnerInterfaceService;
-import com.example.common.service.InnerUserInterfaceService;
-import com.example.common.service.InnerUserService;
+import com.example.common.service.DubboInterfaceService;
+import com.example.common.service.DubboUserInterfaceService;
+import com.example.common.service.DubboUserService;
 import com.example.common.utils.SignUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -22,7 +22,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -39,11 +38,11 @@ import java.nio.charset.StandardCharsets;
 public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
     @DubboReference
-    private InnerUserService innerUserService;
+    private DubboUserService dubboUserService;
     @DubboReference
-    private InnerInterfaceService innerInterfaceService;
+    private DubboInterfaceService dubboInterfaceService;
     @DubboReference
-    private InnerUserInterfaceService innerUserInterfaceService;
+    private DubboUserInterfaceService dubboUserInterfaceService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -64,7 +63,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String accessKey = headers.getFirst(InterfaceConsts.ACCESS_KEY);
         User user = null;
         try {
-            user = innerUserService.getInvokeUser(accessKey);
+            user = dubboUserService.getInvokeUser(accessKey);
         } catch (Exception e) {
             log.info("invokeUser error", e);
         }
@@ -82,7 +81,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         //判断接口是否存在
         InterfaceInfo interfaceInfo = null;
         try {
-            interfaceInfo = innerInterfaceService.getInterfaceInfo(url, method);
+            interfaceInfo = dubboInterfaceService.getInterfaceInfo(url, method);
         } catch (Exception e) {
             log.info("invokeInterfaceInfo error", e);
         }
@@ -121,7 +120,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                         Flux<? extends DataBuffer> fluxBody = Flux.from(body);
                         return super.writeWith(fluxBody.map(dataBuffer -> {
                             try {
-                                innerUserInterfaceService.invokeCount(interfaceInfoId, userId);
+                                dubboUserInterfaceService.invokeCount(interfaceInfoId, userId);
                             } catch (Exception e) {
                                 log.error("invokeCount error", e);
                             }

@@ -10,5 +10,6 @@ public interface CommonConsts {
     String IMAGE_UPLOAD_ERROR = "文件上传错误！";
     String IMAGE_FORMAT_ERROR = "文件格式错误！";
     String IMAGE_READ_ERROR = "文件读取失败！";
-    String PAGE_PARAMS_ERROR = "分页参数异常";
+    String PAGE_PARAMS_ERROR = "分页参数异常！";
+    String EXIST_ERROR = "已开通接口调用权限！无需再次开通！";
 }

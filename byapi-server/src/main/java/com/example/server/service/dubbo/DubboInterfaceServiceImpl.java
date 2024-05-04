@@ -1,10 +1,10 @@
-package com.example.server.service.inner;
+package com.example.server.service.dubbo;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
 import com.example.common.model.entity.InterfaceInfo;
-import com.example.common.service.InnerInterfaceService;
+import com.example.common.service.DubboInterfaceService;
 import com.example.server.service.InterfaceService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  * @author by
  */
 @DubboService
-public class InnerInterfaceServiceImpl implements InnerInterfaceService {
+public class DubboInterfaceServiceImpl implements DubboInterfaceService {
 
     @Resource
     private InterfaceService interfaceService;
