@@ -20,12 +20,14 @@ import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.server.mapper.InterfaceMapper;
 import com.example.server.service.InterfaceService;
+import com.example.server.service.UserInterfaceService;
 import com.example.server.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -36,6 +38,8 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Resource
     private UserService userService;
+    @Resource
+    private UserInterfaceService userInterfaceService;
 
     @Override
     public void addInterface(InterfaceAddDto interfaceAddDto) {
@@ -167,6 +171,27 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         }
         //创建一个SDK客户端
         ByApiClient byApiClient = new ByApiClient(accessKey, secretKey);
-        return byApiClient.getName(userRequestParams);
+        //利用反射根据接口名称动态调用接口
+        Class<? extends ByApiClient> byApiClientClass = byApiClient.getClass();
+        //根据接口名称获取方法
+        Method method;
+        try {
+            method = byApiClientClass.getMethod(interfaceInfo.getName(), String.class);
+            //调用方法
+            return method.invoke(byApiClient, userRequestParams);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, InterfaceConsts.NOT_EXIST_ERROR);
+        }
+    }
+
+    @Override
+    public void openPermission(Long interfaceId, HttpServletRequest request) {
+        //获取用户ID
+        UserVo userVo = userService.getLoginUser(request);
+        Long userId = userVo.getId();
+        //为当前用户分配密钥
+        userService.applyKey(request);
+        //添加用户接口关系记录
+        userInterfaceService.addUserInterface(interfaceId, userId);
     }
 }

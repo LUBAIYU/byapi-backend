@@ -103,4 +103,14 @@ public class InterfaceController {
         Object res = interfaceService.invokeInterface(interfaceInvokeDto, request);
         return Result.success(res);
     }
+
+    @PostMapping("/open")
+    @LoginCheck
+    public Result<Void> openPermission(Long interfaceId, HttpServletRequest request) {
+        if (interfaceId == null || interfaceId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        interfaceService.openPermission(interfaceId, request);
+        return Result.success();
+    }
 }

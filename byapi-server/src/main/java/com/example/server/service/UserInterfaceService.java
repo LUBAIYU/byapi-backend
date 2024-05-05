@@ -6,8 +6,6 @@ import com.example.common.model.dto.UserInterfaceUpdateDto;
 import com.example.common.model.entity.UserInterfaceInfo;
 import com.example.common.utils.PageBean;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author by
  */
@@ -25,9 +23,9 @@ public interface UserInterfaceService extends IService<UserInterfaceInfo> {
      * 添加用户接口关联信息
      *
      * @param interfaceId 接口ID
-     * @param request     请求对象
+     * @param userId      用户ID
      */
-    void addUserInterface(Long interfaceId, HttpServletRequest request);
+    void addUserInterface(Long interfaceId, Long userId);
 
     /**
      * 更新用户接口关联信息

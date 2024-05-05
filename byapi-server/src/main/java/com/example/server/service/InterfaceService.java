@@ -60,4 +60,12 @@ public interface InterfaceService extends IService<InterfaceInfo> {
      * @return 调用结果
      */
     Object invokeInterface(InterfaceInvokeDto interfaceInvokeDto, HttpServletRequest request);
+
+    /**
+     * 开通接口权限
+     *
+     * @param interfaceId 接口ID
+     * @param request     请求对象
+     */
+    void openPermission(Long interfaceId, HttpServletRequest request);
 }

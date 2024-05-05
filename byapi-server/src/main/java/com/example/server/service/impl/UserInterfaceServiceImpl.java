@@ -10,24 +10,16 @@ import com.example.common.exception.BusinessException;
 import com.example.common.model.dto.UserInterfacePageDto;
 import com.example.common.model.dto.UserInterfaceUpdateDto;
 import com.example.common.model.entity.UserInterfaceInfo;
-import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.server.mapper.UserInterfaceMapper;
 import com.example.server.service.UserInterfaceService;
-import com.example.server.service.UserService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author by
  */
 @Service
 public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, UserInterfaceInfo> implements UserInterfaceService {
-
-    @Resource
-    private UserService userService;
 
     @Override
     public void invokeCount(long interfaceId, long userId) {
@@ -42,10 +34,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
     }
 
     @Override
-    public void addUserInterface(Long interfaceId, HttpServletRequest request) {
-        //获取用户ID
-        UserVo userVo = userService.getLoginUser(request);
-        Long userId = userVo.getId();
+    public void addUserInterface(Long interfaceId, Long userId) {
         //查询记录是否存在
         LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserInterfaceInfo::getUserId, userId);
