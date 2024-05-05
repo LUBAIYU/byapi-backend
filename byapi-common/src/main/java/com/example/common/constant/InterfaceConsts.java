@@ -12,7 +12,5 @@ public interface InterfaceConsts {
     String ACCESS_KEY = "accessKey";
 
     String SECRET_KEY = "secretKey";
-
-    String REQUEST_BODY = "body";
     String NOT_EXIST_ERROR = "接口不存在！";
 }
