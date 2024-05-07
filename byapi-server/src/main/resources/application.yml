@@ -16,6 +16,20 @@ spring:
     servlet:
       path: /api
 
+  mail:
+    username: 1296800094@qq.com
+    # 授权码
+    password: qiwtdnsvasachebc
+    host: smtp.qq.com
+    default-encoding: utf-8
+    # 开启加密验证
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enabled: true
+
+
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

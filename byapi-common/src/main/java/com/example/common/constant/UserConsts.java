@@ -17,4 +17,9 @@ public interface UserConsts {
     String USER_PARAMS_ERROR = "用户名或密码错误！";
     String PASSWORD_NOT_EQUAL = "密码不一致！";
     String USER_NAME_EXIST = "用户名已经存在！";
+    String CODE = "code";
+    String EMAIL = "email";
+    String VER_CODE = "verCode";
+    String DELAY_TASK_ERROR = "延迟任务失败！";
+    String SEND_MAIL_ERROR = "发送邮件失败！";
 }

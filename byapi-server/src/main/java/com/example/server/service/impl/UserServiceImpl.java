@@ -1,6 +1,7 @@
 package com.example.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -25,17 +26,30 @@ import com.example.server.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author by
@@ -49,6 +63,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private String domain;
     @Value("${byapi.server.path.address}")
     private String address;
+
+    /**
+     * 邮件发送类
+     */
+    @Resource
+    private JavaMailSenderImpl javaMailSender;
+
+    /**
+     * 创建线程池
+     */
+    private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(10, new ThreadPoolExecutor.AbortPolicy());
 
     @Override
     public UserVo userLogin(LoginDto loginDto, HttpServletRequest request) {
@@ -287,6 +312,72 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         keyVo.setAccessKey(accessKey);
         keyVo.setSecretKey(secretKey);
         return keyVo;
+    }
+
+    @Override
+    public void sendEmail(String email, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        //随机生成验证码
+        String verCode = RandomUtil.randomNumbers(6);
+        //发送时间
+        String time = DateUtil.formatDateTime(new Date());
+        //保存验证码的map
+        Map<String, String> map = new HashMap<>(2);
+        map.put(UserConsts.CODE, verCode);
+        map.put(UserConsts.EMAIL, email);
+        //验证码和邮箱一起放入session
+        session.setAttribute(UserConsts.VER_CODE, map);
+        Object object = session.getAttribute(UserConsts.VER_CODE);
+        Map<String, String> codeMap = (Map<String, String>) object;
+        //创建计时线程池
+        try {
+            //5分钟后移除验证码
+            scheduledExecutorService.schedule(() -> {
+                if (email.equals(codeMap.get(UserConsts.EMAIL))) {
+                    session.removeAttribute(UserConsts.VER_CODE);
+                }
+            }, 5, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.DELAY_TASK_ERROR);
+        }
+        //发送邮件
+        MimeMessage mimeMessage;
+        MimeMessageHelper helper;
+        try {
+            // 解决本地DNS未配置 ip->域名场景下，邮件发送太慢的问题
+            System.getProperties().setProperty("mail.mime.address.usecanonicalhostname", "false");
+            //发送复杂的邮件
+            mimeMessage = javaMailSender.createMimeMessage();
+            Session messageSession = mimeMessage.getSession();
+            //解决本地DNS未配置 ip->域名场景下，邮件发送太慢的问题
+            messageSession.getProperties().setProperty("mail.smtp.localhost", "myComputer");
+            //组装
+            helper = new MimeMessageHelper(mimeMessage, true);
+            //邮件标题
+            helper.setSubject("【By API】 验证码");
+            //ture为支持识别html标签
+            helper.setText("<h3>\n" +
+                    "\t<span style=\"font-size:16px;\">亲爱的用户：</span> \n" +
+                    "</h3>\n" +
+                    "<p>\n" +
+                    "\t<span style=\"font-size:14px;\">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style=\"font-size:14px;\">&nbsp; <span style=\"font-size:16px;\">&nbsp;&nbsp;您好！您正在进行邮箱验证，本次请求的验证码为：<span style=\"font-size:24px;color:#FFE500;\"> " + verCode + "</span>，本验证码5分钟内有效，请勿泄露和转发。如非本人操作，请忽略该邮件。</span></span>\n" +
+                    "</p>\n" +
+                    "<p style=\"text-align:right;\">\n" +
+                    "\t<span style=\"background-color:#FFFFFF;font-size:16px;color:#000000;\"><span style=\"color:#000000;font-size:16px;background-color:#FFFFFF;\"><span class=\"token string\" style=\"font-family:&quot;font-size:16px;color:#000000;line-height:normal !important;background-color:#FFFFFF;\">By API</span></span></span> \n" +
+                    "</p>\n" +
+                    "<p style=\"text-align:right;\">\n" +
+                    "\t<span style=\"background-color:#FFFFFF;font-size:14px;\"><span style=\"color:#FF9900;font-size:18px;\"><span class=\"token string\" style=\"font-family:&quot;font-size:16px;color:#000000;line-height:normal !important;\"><span style=\"font-size:16px;color:#000000;background-color:#FFFFFF;\">" + time + "</span><span style=\"font-size:18px;color:#000000;background-color:#FFFFFF;\"></span></span></span></span> \n" +
+                    "</p>", true);
+            //收件人
+            helper.setTo(email);
+            //发送方
+            helper.setFrom("1296800094@qq.com");
+            //异步发送邮件
+            scheduledExecutorService.execute(() -> javaMailSender.send(mimeMessage));
+        } catch (Exception e) {
+            //邮箱是无效的，或者发送失败
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.SEND_MAIL_ERROR);
+        }
     }
 }
 

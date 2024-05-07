@@ -145,4 +145,13 @@ public class UserController {
         KeyVo keyVo = userService.applyKey(request);
         return Result.success(keyVo);
     }
+
+    @PostMapping("/mail/send")
+    public Result<Void> sendMail(String email, HttpServletRequest request) {
+        if (email == null || request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userService.sendEmail(email, request);
+        return Result.success();
+    }
 }

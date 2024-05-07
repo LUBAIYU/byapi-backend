@@ -89,4 +89,12 @@ public interface UserService extends IService<User> {
      * @return 密钥对
      */
     KeyVo applyKey(HttpServletRequest request);
+
+    /**
+     * 发送邮件
+     *
+     * @param mail    指定邮箱
+     * @param request 请求对象
+     */
+    void sendEmail(String mail, HttpServletRequest request);
 }
