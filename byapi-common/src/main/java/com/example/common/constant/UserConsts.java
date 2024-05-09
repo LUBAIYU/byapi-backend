@@ -24,4 +24,5 @@ public interface UserConsts {
     String SEND_MAIL_ERROR = "发送邮件失败！";
     String EMAIL_PARAMS_ERROR = "邮箱或验证码错误！";
     String EMAIL_EXIST = "邮箱已经存在！";
+    String ACCOUNT_FORBIDDEN = "账号已被封禁！";
 }

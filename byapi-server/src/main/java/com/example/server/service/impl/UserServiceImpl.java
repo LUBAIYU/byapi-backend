@@ -100,6 +100,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_PARAMS_ERROR);
         }
+        //判断用户是否被禁用
+        if (user.getStatus() == 1) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.ACCOUNT_FORBIDDEN);
+        }
         //判断密码是否正确
         String encryptPassword = DigestUtil.md5Hex(userPassword + user.getSalt());
         if (!user.getUserPassword().equals(encryptPassword)) {
@@ -406,6 +410,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = this.getOne(wrapper);
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_PARAMS_ERROR);
+        }
+        //判断用户是否被禁用
+        if (user.getStatus() == 1) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.ACCOUNT_FORBIDDEN);
         }
         //获取session中的验证码
         Object object = request.getSession().getAttribute(UserConsts.VER_CODE);
