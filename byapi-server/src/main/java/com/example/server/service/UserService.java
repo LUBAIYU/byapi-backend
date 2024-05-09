@@ -1,5 +1,6 @@
 package com.example.server.service;
 
+import com.example.common.model.dto.EmailDto;
 import com.example.common.model.dto.LoginDto;
 import com.example.common.model.dto.RegisterDto;
 import com.example.common.model.dto.UserPageDto;
@@ -97,4 +98,20 @@ public interface UserService extends IService<User> {
      * @param request 请求对象
      */
     void sendEmail(String mail, HttpServletRequest request);
+
+    /**
+     * 邮箱登录
+     *
+     * @param emailDto 邮箱登录请求体
+     * @param request  请求对象
+     * @return 登录用户信息
+     */
+    UserVo emailLogin(EmailDto emailDto, HttpServletRequest request);
+
+    /**
+     * 邮箱注册
+     *
+     * @param emailDto 邮箱注册请求体
+     */
+    void emailRegister(EmailDto emailDto);
 }

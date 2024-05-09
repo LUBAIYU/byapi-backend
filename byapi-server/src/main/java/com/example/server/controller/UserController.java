@@ -6,6 +6,7 @@ import com.example.common.annotation.MustAdmin;
 import com.example.common.constant.UserConsts;
 import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
+import com.example.common.model.dto.EmailDto;
 import com.example.common.model.dto.LoginDto;
 import com.example.common.model.dto.RegisterDto;
 import com.example.common.model.dto.UserPageDto;
@@ -49,6 +50,15 @@ public class UserController {
         return Result.success(userVo);
     }
 
+    @PostMapping("/email/login")
+    public Result<UserVo> emailLogin(@RequestBody EmailDto emailDto, HttpServletRequest request) {
+        if (emailDto == null || request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        UserVo userVo = userService.emailLogin(emailDto, request);
+        return Result.success(userVo);
+    }
+
     @PostMapping("/logout")
     @LoginCheck
     public Result<Void> userLogout(HttpServletRequest request) {
@@ -74,6 +84,15 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         userService.userRegister(registerDto);
+        return Result.success();
+    }
+
+    @PostMapping("/email/register")
+    public Result<Void> emailRegister(@RequestBody EmailDto emailDto) {
+        if (emailDto == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userService.emailRegister(emailDto);
         return Result.success();
     }
 

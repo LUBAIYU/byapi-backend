@@ -22,4 +22,5 @@ public interface UserConsts {
     String VER_CODE = "verCode";
     String DELAY_TASK_ERROR = "延迟任务失败！";
     String SEND_MAIL_ERROR = "发送邮件失败！";
+    String EMAIL_PARAMS_ERROR = "邮箱或验证码错误！";
 }

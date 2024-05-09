@@ -41,6 +41,11 @@ public class User implements Serializable {
     private String userAvatar;
 
     /**
+     * 邮箱，用于邮箱登录
+     */
+    private String email;
+
+    /**
      * 性别（0-男，1-女）
      */
     private Integer gender;

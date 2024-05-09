@@ -30,6 +30,11 @@ public class UserVo {
     private String userAvatar;
 
     /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
      * 性别（0-男，1-女）
      */
     private Integer gender;

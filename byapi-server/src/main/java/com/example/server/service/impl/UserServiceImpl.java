@@ -13,6 +13,7 @@ import com.example.common.constant.UserConsts;
 import com.example.common.enums.ErrorCode;
 import com.example.common.enums.RoleEnum;
 import com.example.common.exception.BusinessException;
+import com.example.common.model.dto.EmailDto;
 import com.example.common.model.dto.LoginDto;
 import com.example.common.model.dto.RegisterDto;
 import com.example.common.model.dto.UserPageDto;
@@ -328,6 +329,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //验证码和邮箱一起放入session
         session.setAttribute(UserConsts.VER_CODE, map);
         Object object = session.getAttribute(UserConsts.VER_CODE);
+        @SuppressWarnings("unchecked")
         Map<String, String> codeMap = (Map<String, String>) object;
         //创建计时线程池
         try {
@@ -378,6 +380,60 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             //邮箱是无效的，或者发送失败
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.SEND_MAIL_ERROR);
         }
+    }
+
+    @Override
+    public UserVo emailLogin(EmailDto emailDto, HttpServletRequest request) {
+        String email = emailDto.getEmail();
+        String verCode = emailDto.getVerCode();
+        if (StringUtils.isAnyBlank(email, verCode)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //判断邮箱是否存在
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getEmail, email);
+        User user = this.getOne(wrapper);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_PARAMS_ERROR);
+        }
+        //获取session中的验证码
+        Object object = request.getSession().getAttribute(UserConsts.VER_CODE);
+        @SuppressWarnings("unchecked")
+        Map<String, String> map = (Map<String, String>) object;
+        String sEmail = map.get(UserConsts.EMAIL);
+        String code = map.get(UserConsts.CODE);
+        //校验邮箱和验证码
+        if (!email.equals(sEmail) || !verCode.equals(code)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_PARAMS_ERROR);
+        }
+        //用户信息脱敏
+        UserVo userVo = new UserVo();
+        BeanUtil.copyProperties(user, userVo);
+        //保存用户登录态
+        request.getSession().setAttribute(UserConsts.USER_LOGIN_STATE, userVo);
+        return userVo;
+    }
+
+    @Override
+    public void emailRegister(EmailDto emailDto) {
+        String email = emailDto.getEmail();
+        String verCode = emailDto.getVerCode();
+        if (StringUtils.isAnyBlank(email, verCode)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //判断邮箱是否存在
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getEmail, email);
+        User user = this.getOne(wrapper);
+        if (user != null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_PARAMS_ERROR);
+        }
+        //插入数据
+        user = new User();
+        user.setEmail(email);
+        user.setStatus(0);
+        user.setUserRole(RoleEnum.USER.getRole());
+        this.save(user);
     }
 }
 
