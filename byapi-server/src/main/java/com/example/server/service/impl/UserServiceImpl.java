@@ -6,6 +6,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.common.constant.CommonConsts;
@@ -165,23 +166,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public void updateUser(UserUpdateDto userUpdateDto) {
+    public void updateUser(UserUpdateDto userUpdateDto, HttpServletRequest request) {
         Long id = userUpdateDto.getId();
         String userAccount = userUpdateDto.getUserAccount();
+        String email = userUpdateDto.getEmail();
         Integer status = userUpdateDto.getStatus();
-        String userRole = userUpdateDto.getUserRole();
         //判断部分参数是否合法
         if (id == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        if (StringUtils.isAnyBlank(userAccount, userRole)) {
+        if (StrUtil.isBlank(userAccount) && StrUtil.isBlank(email)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //查询邮箱是否存在
+        LambdaUpdateWrapper<User> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(User::getEmail, email);
+        User user = this.getOne(wrapper);
+        //获取当前登录用户
+        UserVo userVo = this.getLoginUser(request);
+        //如果邮箱存在且邮箱为其他用户所有，则抛出异常
+        if (user != null && !userVo.getId().equals(user.getId())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_EXIST);
         }
         if (status == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            userUpdateDto.setStatus(0);
         }
         //更新
-        User user = new User();
+        user = new User();
         BeanUtil.copyProperties(userUpdateDto, user);
         this.updateById(user);
     }

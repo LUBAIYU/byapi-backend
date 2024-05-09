@@ -48,8 +48,9 @@ public interface UserService extends IService<User> {
      * 更新用户信息
      *
      * @param userUpdateDto 用户更新信息
+     * @param request       请求对象
      */
-    void updateUser(UserUpdateDto userUpdateDto);
+    void updateUser(UserUpdateDto userUpdateDto, HttpServletRequest request);
 
     /**
      * 分页条件查询
