@@ -162,14 +162,24 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         if (interfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        //获取当前登录用户
+        //获取当前登录用户ID
         UserVo loginUser = userService.getLoginUser(request);
-        User user = userService.getById(loginUser.getId());
+        Long userId = loginUser.getId();
+        //判断用户是否有权限
+        User user = userService.getById(userId);
         String accessKey = user.getAccessKey();
         String secretKey = user.getSecretKey();
         //如果没有签名和密钥，则抛出异常
         if (StringUtils.isAnyBlank(accessKey, secretKey)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        //判断用户是否还有调用次数
+        LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserInterfaceInfo::getInterfaceId, id);
+        wrapper.eq(UserInterfaceInfo::getUserId, userId);
+        UserInterfaceInfo userInterfaceInfo = userInterfaceService.getOne(wrapper);
+        if (userInterfaceInfo.getLeftNum() == 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, InterfaceConsts.INVOKE_COUNT_ERROR);
         }
         //创建一个SDK客户端
         ByApiClient byApiClient = new ByApiClient(accessKey, secretKey);
