@@ -16,6 +16,8 @@ import com.example.common.model.dto.InterfacePageDto;
 import com.example.common.model.dto.InterfaceUpdateDto;
 import com.example.common.model.entity.InterfaceInfo;
 import com.example.common.model.entity.User;
+import com.example.common.model.entity.UserInterfaceInfo;
+import com.example.common.model.vo.InterfaceVo;
 import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.server.mapper.InterfaceMapper;
@@ -193,5 +195,32 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         userService.applyKey(request);
         //添加用户接口关系记录
         userInterfaceService.addUserInterface(interfaceId, userId);
+    }
+
+    @Override
+    public InterfaceVo getInterfaceById(Long id, HttpServletRequest request) {
+        //判断接口是否存在
+        LambdaQueryWrapper<InterfaceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(InterfaceInfo::getId, id);
+        InterfaceInfo interfaceInfo = this.getOne(wrapper);
+        if (interfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        //获取当前登录用户ID
+        UserVo userVo = userService.getLoginUser(request);
+        Long userId = userVo.getId();
+        //根据用户ID和接口ID查询当前用户调用次数
+        LambdaQueryWrapper<UserInterfaceInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserInterfaceInfo::getUserId, userId);
+        queryWrapper.eq(UserInterfaceInfo::getInterfaceId, id);
+        UserInterfaceInfo userInterfaceInfo = userInterfaceService.getOne(queryWrapper);
+        //封装数据
+        InterfaceVo interfaceVo = new InterfaceVo();
+        BeanUtil.copyProperties(interfaceInfo, interfaceVo);
+        if (userInterfaceInfo != null) {
+            interfaceVo.setLeftNum(userInterfaceInfo.getLeftNum());
+            interfaceVo.setTotalNum(userInterfaceInfo.getTotalNum());
+        }
+        return interfaceVo;
     }
 }

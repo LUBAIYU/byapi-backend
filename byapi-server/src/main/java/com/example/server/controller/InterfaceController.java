@@ -9,6 +9,7 @@ import com.example.common.model.dto.InterfaceInvokeDto;
 import com.example.common.model.dto.InterfacePageDto;
 import com.example.common.model.dto.InterfaceUpdateDto;
 import com.example.common.model.entity.InterfaceInfo;
+import com.example.common.model.vo.InterfaceVo;
 import com.example.common.utils.PageBean;
 import com.example.common.utils.Result;
 import com.example.server.service.InterfaceService;
@@ -86,12 +87,12 @@ public class InterfaceController {
 
     @GetMapping("/get/{id}")
     @LoginCheck
-    public Result<InterfaceInfo> getInterfaceById(@PathVariable Long id) {
+    public Result<InterfaceVo> getInterfaceById(@PathVariable Long id, HttpServletRequest request) {
         if (id == null || id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        InterfaceInfo interfaceInfo = interfaceService.getById(id);
-        return Result.success(interfaceInfo);
+        InterfaceVo interfaceVo = interfaceService.getInterfaceById(id, request);
+        return Result.success(interfaceVo);
     }
 
     @PostMapping("/invoke")

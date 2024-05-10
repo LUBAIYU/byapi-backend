@@ -6,6 +6,7 @@ import com.example.common.model.dto.InterfaceInvokeDto;
 import com.example.common.model.dto.InterfacePageDto;
 import com.example.common.model.dto.InterfaceUpdateDto;
 import com.example.common.model.entity.InterfaceInfo;
+import com.example.common.model.vo.InterfaceVo;
 import com.example.common.utils.PageBean;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,4 +69,13 @@ public interface InterfaceService extends IService<InterfaceInfo> {
      * @param request     请求对象
      */
     void openPermission(Long interfaceId, HttpServletRequest request);
+
+    /**
+     * 根据ID获取接口信息
+     *
+     * @param id      接口ID
+     * @param request 请求对象
+     * @return 接口信息
+     */
+    InterfaceVo getInterfaceById(Long id, HttpServletRequest request);
 }
