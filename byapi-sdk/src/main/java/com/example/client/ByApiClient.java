@@ -69,6 +69,21 @@ public class ByApiClient {
         return httpRequest.execute().body();
     }
 
+    /**
+     * 随机生成土味情话
+     *
+     * @return 土味情话
+     */
+    public String randomLoveTalk() {
+        //添加请求头
+        Map<String, String> headerMap = this.getHeaderMap(BODY_KEY);
+        //发送请求
+        HttpRequest httpRequest = HttpRequest.get(GATEWAY_HOST + "/actual/random/loveTalk")
+                .addHeaders(headerMap);
+        //返回请求数据
+        return httpRequest.execute().body();
+    }
+
 
     public Map<String, String> getHeaderMap(String bodyKey) {
         Map<String, String> map = new HashMap<>(3);
