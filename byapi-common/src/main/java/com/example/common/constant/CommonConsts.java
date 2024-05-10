@@ -12,4 +12,5 @@ public interface CommonConsts {
     String IMAGE_READ_ERROR = "文件读取失败！";
     String PAGE_PARAMS_ERROR = "分页参数异常！";
     String EXIST_ERROR = "已开通接口调用权限！无需再次开通！";
+    String BODY_KEY = "body-key";
 }

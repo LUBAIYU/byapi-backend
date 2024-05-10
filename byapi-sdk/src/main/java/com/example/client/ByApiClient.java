@@ -27,6 +27,11 @@ public class ByApiClient {
      */
     private static final String GATEWAY_HOST = "http://localhost:9010";
 
+    /**
+     * 加密钥匙
+     */
+    public static final String BODY_KEY = "body-key";
+
     public ByApiClient(String accessKey, String secretKey) {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
@@ -40,7 +45,7 @@ public class ByApiClient {
      */
     public String getName(String name) {
         //添加请求头
-        Map<String, String> headerMap = this.getHeaderMap(name);
+        Map<String, String> headerMap = this.getHeaderMap(BODY_KEY);
         //发送请求
         HttpRequest httpRequest = HttpRequest.get(GATEWAY_HOST + "/actual/get/name")
                 .form("name", name)
@@ -49,12 +54,28 @@ public class ByApiClient {
         return httpRequest.execute().body();
     }
 
-    public Map<String, String> getHeaderMap(String body) {
+    /**
+     * 随机生成图片
+     *
+     * @return 图片地址
+     */
+    public String randomImageUrl() {
+        //添加请求头
+        Map<String, String> headerMap = this.getHeaderMap(BODY_KEY);
+        //发送请求
+        HttpRequest httpRequest = HttpRequest.get(GATEWAY_HOST + "/actual/random/imageUrl")
+                .addHeaders(headerMap);
+        //返回请求数据
+        return httpRequest.execute().body();
+    }
+
+
+    public Map<String, String> getHeaderMap(String bodyKey) {
         Map<String, String> map = new HashMap<>(3);
         //签名
         map.put("accessKey", accessKey);
         //密钥
-        map.put("secretKey", SignUtil.generateSign(body, secretKey));
+        map.put("secretKey", SignUtil.generateSign(bodyKey, secretKey));
         return map;
     }
 }
