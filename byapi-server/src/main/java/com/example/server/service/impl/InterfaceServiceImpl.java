@@ -178,6 +178,9 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         wrapper.eq(UserInterfaceInfo::getInterfaceId, id);
         wrapper.eq(UserInterfaceInfo::getUserId, userId);
         UserInterfaceInfo userInterfaceInfo = userInterfaceService.getOne(wrapper);
+        if (userInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
         if (userInterfaceInfo.getLeftNum() == 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, InterfaceConsts.INVOKE_COUNT_ERROR);
         }
@@ -188,9 +191,15 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         //根据接口名称获取方法
         Method method;
         try {
-            method = byApiClientClass.getMethod(interfaceInfo.getName(), String.class);
+            //判断用户是否传递了参数
+            if (StrUtil.isNotBlank(userRequestParams)) {
+                method = byApiClientClass.getMethod(interfaceInfo.getName(), String.class);
+                //调用方法
+                return method.invoke(byApiClient, userRequestParams);
+            }
+            method = byApiClientClass.getMethod(interfaceInfo.getName());
             //调用方法
-            return method.invoke(byApiClient, userRequestParams);
+            return method.invoke(byApiClient);
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, InterfaceConsts.NOT_EXIST_ERROR);
         }

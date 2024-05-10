@@ -1,5 +1,6 @@
 package com.example.gateway.config;
 
+import com.example.common.constant.CommonConsts;
 import com.example.common.constant.InterfaceConsts;
 import com.example.common.model.entity.InterfaceInfo;
 import com.example.common.model.entity.User;
@@ -72,9 +73,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             return handleNoAuth(exchange.getResponse());
         }
         //校验密钥
-        String body = request.getQueryParams().getFirst("name");
         String secretKey = headers.getFirst(InterfaceConsts.SECRET_KEY);
-        String sign = SignUtil.generateSign(body, user.getSecretKey());
+        String sign = SignUtil.generateSign(CommonConsts.BODY_KEY, user.getSecretKey());
         if (!sign.equals(secretKey)) {
             return handleNoAuth(exchange.getResponse());
         }
