@@ -14,4 +14,5 @@ public interface InterfaceConsts {
     String SECRET_KEY = "secretKey";
     String NOT_EXIST_ERROR = "接口不存在！";
     String INVOKE_COUNT_ERROR = "接口调用次数不足！";
+    String INTERFACE_CLOSE = "接口已关闭！";
 }

@@ -162,6 +162,10 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         if (interfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
+        //判断接口是否处于关闭状态
+        if (interfaceInfo.getStatus() == 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, InterfaceConsts.INTERFACE_CLOSE);
+        }
         //获取当前登录用户ID
         UserVo loginUser = userService.getLoginUser(request);
         Long userId = loginUser.getId();
