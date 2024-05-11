@@ -462,8 +462,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public KeyVo getKeyById(HttpServletRequest request) {
-        Object object = request.getSession().getAttribute(UserConsts.USER_LOGIN_STATE);
-        UserVo userVo = (UserVo) object;
+        UserVo userVo = this.getLoginUser(request);
         Long userId = userVo.getId();
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getId, userId);

@@ -11,12 +11,14 @@ import com.example.common.utils.Result;
 import com.example.server.service.UserInterfaceService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author by
@@ -56,5 +58,14 @@ public class UserInterfaceController {
         }
         PageBean<UserInterfaceInfo> pageBean = userInterfaceService.pageUserInterfaces(userInterfacePageDto);
         return Result.success(pageBean);
+    }
+
+    @PostMapping("/add/count")
+    public Result<Void> addInvokeCount(Long interfaceId, HttpServletRequest request) {
+        if (interfaceId == null || interfaceId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userInterfaceService.addInvokeCount(interfaceId, request);
+        return Result.success();
     }
 }

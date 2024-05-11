@@ -6,6 +6,8 @@ import com.example.common.model.dto.UserInterfaceUpdateDto;
 import com.example.common.model.entity.UserInterfaceInfo;
 import com.example.common.utils.PageBean;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * @author by
  */
@@ -41,4 +43,12 @@ public interface UserInterfaceService extends IService<UserInterfaceInfo> {
      * @return 查询数据
      */
     PageBean<UserInterfaceInfo> pageUserInterfaces(UserInterfacePageDto userInterfacePageDto);
+
+    /**
+     * 增加接口调用次数
+     *
+     * @param interfaceId 接口ID
+     * @param request     请求对象
+     */
+    void addInvokeCount(Long interfaceId, HttpServletRequest request);
 }

@@ -10,16 +10,24 @@ import com.example.common.exception.BusinessException;
 import com.example.common.model.dto.UserInterfacePageDto;
 import com.example.common.model.dto.UserInterfaceUpdateDto;
 import com.example.common.model.entity.UserInterfaceInfo;
+import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.server.mapper.UserInterfaceMapper;
 import com.example.server.service.UserInterfaceService;
+import com.example.server.service.UserService;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author by
  */
 @Service
 public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, UserInterfaceInfo> implements UserInterfaceService {
+
+    @Resource
+    private UserService userService;
 
     @Override
     public void invokeCount(long interfaceId, long userId) {
@@ -48,7 +56,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         userInterfaceInfo.setUserId(userId);
         userInterfaceInfo.setInterfaceId(interfaceId);
         userInterfaceInfo.setTotalNum(0);
-        userInterfaceInfo.setLeftNum(10);
+        userInterfaceInfo.setLeftNum(0);
         this.save(userInterfaceInfo);
     }
 
@@ -103,5 +111,23 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         this.page(page, wrapper);
         //返回
         return PageBean.of(page.getTotal(), page.getRecords());
+    }
+
+    @Override
+    public void addInvokeCount(Long interfaceId, HttpServletRequest request) {
+        //获取登录用户ID
+        UserVo userVo = userService.getLoginUser(request);
+        Long userId = userVo.getId();
+        //根据接口ID和用户ID查询接口调用信息
+        LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserInterfaceInfo::getInterfaceId, interfaceId);
+        wrapper.eq(UserInterfaceInfo::getUserId, userId);
+        UserInterfaceInfo userInterfaceInfo = this.getOne(wrapper);
+        if (userInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        //增加调用次数
+        userInterfaceInfo.setLeftNum(10);
+        this.updateById(userInterfaceInfo);
     }
 }
