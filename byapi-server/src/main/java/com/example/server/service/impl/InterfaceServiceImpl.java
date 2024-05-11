@@ -26,11 +26,14 @@ import com.example.server.service.UserInterfaceService;
 import com.example.server.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author by
@@ -40,6 +43,8 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Resource
     private UserService userService;
+    @Resource
+    private InterfaceService interfaceService;
     @Resource
     private UserInterfaceService userInterfaceService;
 
@@ -245,5 +250,31 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
             interfaceVo.setTotalNum(userInterfaceInfo.getTotalNum());
         }
         return interfaceVo;
+    }
+
+    @Override
+    public List<InterfaceVo> listInvokeRecords(HttpServletRequest request) {
+        //获取用户ID
+        UserVo userVo = userService.getLoginUser(request);
+        Long userId = userVo.getId();
+        //根据用户ID去查询用户接口关联表
+        LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserInterfaceInfo::getUserId, userId);
+        List<UserInterfaceInfo> userInterfaceInfoList = userInterfaceService.list(wrapper);
+        List<InterfaceVo> interfaceVoList = new ArrayList<>();
+        //如果为空直接返回
+        if (CollectionUtils.isEmpty(userInterfaceInfoList)) {
+            return interfaceVoList;
+        }
+        //封装数据
+        interfaceVoList = userInterfaceInfoList.stream().map(userInterfaceInfo -> {
+            InterfaceInfo interfaceInfo = interfaceService.getById(userInterfaceInfo.getInterfaceId());
+            InterfaceVo interfaceVo = new InterfaceVo();
+            BeanUtil.copyProperties(interfaceInfo, interfaceVo);
+            interfaceVo.setTotalNum(userInterfaceInfo.getTotalNum());
+            interfaceVo.setLeftNum(userInterfaceInfo.getLeftNum());
+            return interfaceVo;
+        }).collect(Collectors.toList());
+        return interfaceVoList;
     }
 }

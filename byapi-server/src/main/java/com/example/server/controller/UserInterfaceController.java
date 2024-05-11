@@ -1,5 +1,6 @@
 package com.example.server.controller;
 
+import com.example.common.annotation.LoginCheck;
 import com.example.common.annotation.MustAdmin;
 import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author by
@@ -61,6 +63,7 @@ public class UserInterfaceController {
     }
 
     @PostMapping("/add/count")
+    @LoginCheck
     public Result<Void> addInvokeCount(Long interfaceId, HttpServletRequest request) {
         if (interfaceId == null || interfaceId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);

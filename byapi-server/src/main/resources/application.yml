@@ -28,6 +28,9 @@ spring:
         smtp:
           ssl:
             enabled: true
+  # 允许循环依赖
+  main:
+    allow-circular-references: true
 
 
 mybatis-plus:

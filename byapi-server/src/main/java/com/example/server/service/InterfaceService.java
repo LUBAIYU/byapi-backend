@@ -10,6 +10,7 @@ import com.example.common.model.vo.InterfaceVo;
 import com.example.common.utils.PageBean;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author by
@@ -78,4 +79,12 @@ public interface InterfaceService extends IService<InterfaceInfo> {
      * @return 接口信息
      */
     InterfaceVo getInterfaceById(Long id, HttpServletRequest request);
+
+    /**
+     * 获取接口调用记录
+     *
+     * @param request 请求对象
+     * @return 记录
+     */
+    List<InterfaceVo> listInvokeRecords(HttpServletRequest request);
 }

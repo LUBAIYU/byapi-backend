@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author by
@@ -113,5 +114,15 @@ public class InterfaceController {
         }
         interfaceService.openPermission(interfaceId, request);
         return Result.success();
+    }
+
+    @GetMapping("/list/record")
+    @LoginCheck
+    public Result<List<InterfaceVo>> listInvokeRecords(HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<InterfaceVo> interfaceVos = interfaceService.listInvokeRecords(request);
+        return Result.success(interfaceVos);
     }
 }
