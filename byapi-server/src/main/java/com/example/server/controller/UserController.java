@@ -173,4 +173,14 @@ public class UserController {
         userService.sendEmail(email, request);
         return Result.success();
     }
+
+    @GetMapping("/get/key")
+    @LoginCheck
+    public Result<KeyVo> getKeyById(HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        KeyVo keyVo = userService.getKeyById(request);
+        return Result.success(keyVo);
+    }
 }

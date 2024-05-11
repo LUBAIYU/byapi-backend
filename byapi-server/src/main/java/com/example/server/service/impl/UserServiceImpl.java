@@ -454,6 +454,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserRole(RoleEnum.USER.getRole());
         this.save(user);
     }
+
+    @Override
+    public KeyVo getKeyById(HttpServletRequest request) {
+        Object object = request.getSession().getAttribute(UserConsts.USER_LOGIN_STATE);
+        UserVo userVo = (UserVo) object;
+        Long userId = userVo.getId();
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getId, userId);
+        User user = this.getOne(wrapper);
+        KeyVo keyVo = new KeyVo();
+        keyVo.setAccessKey(user.getAccessKey());
+        keyVo.setSecretKey(user.getSecretKey());
+        return keyVo;
+    }
 }
 
 

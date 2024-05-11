@@ -115,4 +115,12 @@ public interface UserService extends IService<User> {
      * @param emailDto 邮箱注册请求体
      */
     void emailRegister(EmailDto emailDto);
+
+    /**
+     * 根据ID获取用户的密钥
+     *
+     * @param request 请求对象
+     * @return 密钥
+     */
+    KeyVo getKeyById(HttpServletRequest request);
 }
