@@ -183,4 +183,13 @@ public class UserController {
         KeyVo keyVo = userService.getKeyById(request);
         return Result.success(keyVo);
     }
+
+    @GetMapping("/download/jar")
+    @LoginCheck
+    public void downloadJar(HttpServletResponse response) {
+        if (response == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        userService.downloadJar(response);
+    }
 }

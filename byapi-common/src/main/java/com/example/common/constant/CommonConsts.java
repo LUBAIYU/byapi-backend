@@ -13,4 +13,5 @@ public interface CommonConsts {
     String PAGE_PARAMS_ERROR = "分页参数异常！";
     String EXIST_ERROR = "已开通接口调用权限！无需再次开通！";
     String BODY_KEY = "body-key";
+    String SDK_DOWNLOAD_ERROR = "SDK下载失败！";
 }

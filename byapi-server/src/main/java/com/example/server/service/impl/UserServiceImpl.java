@@ -2,6 +2,7 @@ package com.example.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -28,6 +29,7 @@ import com.example.server.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
@@ -471,6 +474,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         keyVo.setAccessKey(user.getAccessKey());
         keyVo.setSecretKey(user.getSecretKey());
         return keyVo;
+    }
+
+    @Override
+    public void downloadJar(HttpServletResponse response) {
+        try {
+            //设置响应类型
+            response.setContentType("application/java-archive");
+            //设置响应头，指定下载的文件名
+            response.setHeader("Content-Disposition", "attachment; filename=byapi-sdk.jar");
+            //指定jar包路径
+            String filePath = "D:/idea/project/byapi-backend/byapi-sdk/target/byapi-sdk-0.0.1-SNAPSHOT.jar";
+            File jarFile = new File(filePath);
+            try (InputStream inputStream = new FileInputStream(jarFile);
+                 OutputStream outputStream = response.getOutputStream()) {
+                //将jar包写入响应体中
+                IoUtil.copy(inputStream, outputStream);
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.SDK_DOWNLOAD_ERROR);
+            }
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.SDK_DOWNLOAD_ERROR);
+        }
     }
 }
 

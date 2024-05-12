@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 
 /**
  * @author by
@@ -123,4 +124,11 @@ public interface UserService extends IService<User> {
      * @return 密钥
      */
     KeyVo getKeyById(HttpServletRequest request);
+
+    /**
+     * 下载SDK的jar包
+     *
+     * @param response 响应对象
+     */
+    void downloadJar(HttpServletResponse response);
 }
