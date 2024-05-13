@@ -125,4 +125,14 @@ public class InterfaceController {
         List<InterfaceVo> interfaceVos = interfaceService.listInvokeRecords(request);
         return Result.success(interfaceVos);
     }
+
+    @GetMapping("/get/code")
+    @LoginCheck
+    public Result<String> getCodeExample(Long interfaceId) {
+        if (interfaceId == null || interfaceId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String codeExample = interfaceService.getCodeExample(interfaceId);
+        return Result.success(codeExample);
+    }
 }

@@ -65,6 +65,11 @@ public class InterfaceInfo implements Serializable {
     private Integer status;
 
     /**
+     * 示例代码
+     */
+    private String codeExample;
+
+    /**
      * 创建时间
      */
     private Date createTime;

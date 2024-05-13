@@ -87,4 +87,12 @@ public interface InterfaceService extends IService<InterfaceInfo> {
      * @return 记录
      */
     List<InterfaceVo> listInvokeRecords(HttpServletRequest request);
+
+    /**
+     * 根据接口ID获取代码示例
+     *
+     * @param interfaceId 接口ID
+     * @return 代码示例
+     */
+    String getCodeExample(Long interfaceId);
 }

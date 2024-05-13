@@ -277,4 +277,13 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         }).collect(Collectors.toList());
         return interfaceVoList;
     }
+
+    @Override
+    public String getCodeExample(Long interfaceId) {
+        InterfaceInfo interfaceInfo = this.getById(interfaceId);
+        if (interfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        return interfaceInfo.getCodeExample();
+    }
 }
