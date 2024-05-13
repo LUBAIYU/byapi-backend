@@ -1,19 +1,21 @@
 package com.example;
 
 import com.example.client.ByApiClient;
+import com.example.server.ByapiServerApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import javax.annotation.Resource;
+
+@SpringBootTest(classes = {ByapiServerApplication.class})
 class ByapiServerApplicationTests {
 
-    private static final String accessKey = "123";
-    private static final String secretKey = "123";
+    @Resource
+    private ByApiClient byApiClient;
 
     @Test
     void contextLoads() {
-        ByApiClient byApiClient = new ByApiClient(accessKey, secretKey);
-        System.out.println(byApiClient.getName("ÕÅÈý"));
+        System.out.println(byApiClient.getName("å¼ ä¸‰"));
     }
 
 }
