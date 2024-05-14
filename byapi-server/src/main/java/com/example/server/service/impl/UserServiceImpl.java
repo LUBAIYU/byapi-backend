@@ -202,11 +202,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user = new User();
         BeanUtil.copyProperties(userUpdateDto, user);
         this.updateById(user);
-        //更新Session中的用户登录态
-        userVo = new UserVo();
-        User dbUser = this.getById(user.getId());
-        BeanUtil.copyProperties(dbUser, userVo);
-        request.getSession().setAttribute(UserConsts.USER_LOGIN_STATE, userVo);
     }
 
     @Override
