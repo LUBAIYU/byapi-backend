@@ -9,16 +9,24 @@ import com.example.common.enums.ErrorCode;
 import com.example.common.exception.BusinessException;
 import com.example.common.model.dto.UserInterfacePageDto;
 import com.example.common.model.dto.UserInterfaceUpdateDto;
+import com.example.common.model.entity.InterfaceInfo;
 import com.example.common.model.entity.UserInterfaceInfo;
+import com.example.common.model.vo.InvokeCountVo;
 import com.example.common.model.vo.UserVo;
 import com.example.common.utils.PageBean;
 import com.example.server.mapper.UserInterfaceMapper;
+import com.example.server.service.InterfaceService;
 import com.example.server.service.UserInterfaceService;
 import com.example.server.service.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author by
@@ -28,6 +36,8 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
 
     @Resource
     private UserService userService;
+    @Resource
+    private InterfaceService interfaceService;
 
     @Override
     public void invokeCount(long interfaceId, long userId) {
@@ -129,5 +139,31 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         //增加调用次数
         userInterfaceInfo.setLeftNum(10);
         this.updateById(userInterfaceInfo);
+    }
+
+    @Override
+    public List<InvokeCountVo> getInvokeCountList() {
+        List<UserInterfaceInfo> userInterfaceInfoList = this.list();
+        List<InvokeCountVo> invokeCountVoList = new ArrayList<>();
+        //如果为空直接返回
+        if (CollectionUtils.isEmpty(userInterfaceInfoList)) {
+            return invokeCountVoList;
+        }
+        //根据接口ID分组
+        Map<Long, List<UserInterfaceInfo>> interfaceIdUsersMap = userInterfaceInfoList.stream().collect(Collectors.groupingBy(UserInterfaceInfo::getInterfaceId));
+        //计算每一个接口的调用次数
+        interfaceIdUsersMap.forEach((interfaceId, userInterfaceInfos) -> {
+            InvokeCountVo invokeCountVo = new InvokeCountVo();
+            InterfaceInfo interfaceInfo = interfaceService.getById(interfaceId);
+            invokeCountVo.setName(interfaceInfo.getName());
+            int count = 0;
+            //将每一组的调用次数进行累加
+            for (UserInterfaceInfo userInterfaceInfo : userInterfaceInfos) {
+                count += userInterfaceInfo.getTotalNum();
+            }
+            invokeCountVo.setCount(count);
+            invokeCountVoList.add(invokeCountVo);
+        });
+        return invokeCountVoList;
     }
 }

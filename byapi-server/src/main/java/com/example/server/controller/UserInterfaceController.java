@@ -7,6 +7,7 @@ import com.example.common.exception.BusinessException;
 import com.example.common.model.dto.UserInterfacePageDto;
 import com.example.common.model.dto.UserInterfaceUpdateDto;
 import com.example.common.model.entity.UserInterfaceInfo;
+import com.example.common.model.vo.InvokeCountVo;
 import com.example.common.utils.PageBean;
 import com.example.common.utils.Result;
 import com.example.server.service.UserInterfaceService;
@@ -70,5 +71,12 @@ public class UserInterfaceController {
         }
         userInterfaceService.addInvokeCount(interfaceId, request);
         return Result.success();
+    }
+
+    @GetMapping("/invoke/count")
+    @LoginCheck
+    public Result<List<InvokeCountVo>> getInvokeCountList() {
+        List<InvokeCountVo> invokeCountVoList = userInterfaceService.getInvokeCountList();
+        return Result.success(invokeCountVoList);
     }
 }

@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.common.model.dto.UserInterfacePageDto;
 import com.example.common.model.dto.UserInterfaceUpdateDto;
 import com.example.common.model.entity.UserInterfaceInfo;
+import com.example.common.model.vo.InvokeCountVo;
 import com.example.common.utils.PageBean;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author by
@@ -51,4 +53,11 @@ public interface UserInterfaceService extends IService<UserInterfaceInfo> {
      * @param request     请求对象
      */
     void addInvokeCount(Long interfaceId, HttpServletRequest request);
+
+    /**
+     * 获取接口调用次数列表
+     *
+     * @return 列表
+     */
+    List<InvokeCountVo> getInvokeCountList();
 }
