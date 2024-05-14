@@ -346,7 +346,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //发送时间
         String time = DateUtil.formatDateTime(new Date());
         //保存验证码的map
-        Map<String, String> map = new HashMap<>(2);
+        Map<String, String> map = new HashMap<>(4);
         map.put(UserConsts.CODE, verCode);
         map.put(UserConsts.EMAIL, email);
         //验证码和邮箱一起放入session
@@ -354,7 +354,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object object = session.getAttribute(UserConsts.VER_CODE);
         @SuppressWarnings("unchecked")
         Map<String, String> codeMap = (Map<String, String>) object;
-        //创建计时线程池
+        //创建计时线程
         try {
             //5分钟后移除验证码
             scheduledExecutorService.schedule(() -> {
