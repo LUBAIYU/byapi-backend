@@ -54,7 +54,9 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         this.update(wrapper);
         //删除缓存
         String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId, interfaceId);
+        String listKey = String.format(CommonConsts.LIST_INVOKE_RECORDS_KEY, userId);
         redisTemplate.delete(key);
+        redisTemplate.delete(listKey);
     }
 
     @Override

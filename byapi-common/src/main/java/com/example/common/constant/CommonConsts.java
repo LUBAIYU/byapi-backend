@@ -15,4 +15,5 @@ public interface CommonConsts {
     String BODY_KEY = "body-key";
     String SDK_DOWNLOAD_ERROR = "SDK下载失败！";
     String GET_INTERFACE_BY_ID_KEY = "byapi:server:getInterfaceById:%s:%s";
+    String LIST_INVOKE_RECORDS_KEY = "byapi:server:listInvokeRecords:%s";
 }

@@ -278,11 +278,18 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         //获取用户ID
         UserVo userVo = userService.getLoginUser(request);
         Long userId = userVo.getId();
+        //判断缓存是否为空
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        String key = String.format(CommonConsts.LIST_INVOKE_RECORDS_KEY, userId);
+        List<InterfaceVo> interfaceVoList = (List<InterfaceVo>) valueOperations.get(key);
+        if (!CollectionUtils.isEmpty(interfaceVoList)) {
+            return interfaceVoList;
+        }
         //根据用户ID去查询用户接口关联表
         LambdaQueryWrapper<UserInterfaceInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserInterfaceInfo::getUserId, userId);
         List<UserInterfaceInfo> userInterfaceInfoList = userInterfaceService.list(wrapper);
-        List<InterfaceVo> interfaceVoList = new ArrayList<>();
+        interfaceVoList = new ArrayList<>();
         //如果为空直接返回
         if (CollectionUtils.isEmpty(userInterfaceInfoList)) {
             return interfaceVoList;
@@ -296,6 +303,12 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
             interfaceVo.setLeftNum(userInterfaceInfo.getLeftNum());
             return interfaceVo;
         }).collect(Collectors.toList());
+        //设置缓存
+        try {
+            valueOperations.set(key, interfaceVoList, 30, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            log.error("redis set key error", e);
+        }
         return interfaceVoList;
     }
 
