@@ -24,7 +24,10 @@ import com.example.server.mapper.InterfaceMapper;
 import com.example.server.service.InterfaceService;
 import com.example.server.service.UserInterfaceService;
 import com.example.server.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -33,12 +36,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
  * @author by
  */
 @Service
+@Slf4j
 public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, InterfaceInfo> implements InterfaceService {
 
     @Resource
@@ -47,6 +52,8 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
     private InterfaceService interfaceService;
     @Resource
     private UserInterfaceService userInterfaceService;
+    @Resource
+    private RedisTemplate redisTemplate;
 
     @Override
     public void addInterface(InterfaceAddDto interfaceAddDto) {
@@ -227,6 +234,16 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
 
     @Override
     public InterfaceVo getInterfaceById(Long id, HttpServletRequest request) {
+        //获取当前登录用户ID
+        UserVo userVo = userService.getLoginUser(request);
+        Long userId = userVo.getId();
+        //判断缓存是否存在
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId);
+        InterfaceVo interfaceVo = (InterfaceVo) valueOperations.get(key);
+        if (interfaceVo != null) {
+            return interfaceVo;
+        }
         //判断接口是否存在
         LambdaQueryWrapper<InterfaceInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(InterfaceInfo::getId, id);
@@ -234,20 +251,24 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         if (interfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        //获取当前登录用户ID
-        UserVo userVo = userService.getLoginUser(request);
-        Long userId = userVo.getId();
         //根据用户ID和接口ID查询当前用户调用次数
         LambdaQueryWrapper<UserInterfaceInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserInterfaceInfo::getUserId, userId);
         queryWrapper.eq(UserInterfaceInfo::getInterfaceId, id);
         UserInterfaceInfo userInterfaceInfo = userInterfaceService.getOne(queryWrapper);
         //封装数据
-        InterfaceVo interfaceVo = new InterfaceVo();
+        interfaceVo = new InterfaceVo();
         BeanUtil.copyProperties(interfaceInfo, interfaceVo);
         if (userInterfaceInfo != null) {
             interfaceVo.setLeftNum(userInterfaceInfo.getLeftNum());
             interfaceVo.setTotalNum(userInterfaceInfo.getTotalNum());
+        }
+        //设置缓存
+        try {
+            //设置缓存时间30分钟
+            valueOperations.set(key, interfaceVo, 30, TimeUnit.MINUTES);
+        } catch (Exception e) {
+            log.error("redis set key error", e);
         }
         return interfaceVo;
     }
