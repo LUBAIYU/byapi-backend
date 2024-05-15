@@ -32,6 +32,11 @@ spring:
   main:
     allow-circular-references: true
 
+  # redis配置
+  redis:
+    host: localhost
+    port: 6379
+
 
 mybatis-plus:
   configuration:
@@ -56,5 +61,6 @@ dubbo:
     port: -1
   registry:
     address: nacos://localhost:8848
+
 
 

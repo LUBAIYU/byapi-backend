@@ -154,6 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String encryptPassword = DigestUtil.md5Hex(userPassword + salt);
         //插入用户数据
         user = new User();
+        user.setUserAccount(userAccount);
         user.setUserName(userAccount);
         user.setUserPassword(encryptPassword);
         user.setUserRole(RoleEnum.USER.getRole());
@@ -455,6 +456,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setEmail(email);
         user.setStatus(0);
         user.setUserRole(RoleEnum.USER.getRole());
+        user.setUserName(email);
         this.save(user);
     }
 
