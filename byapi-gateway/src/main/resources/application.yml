@@ -11,6 +11,8 @@ spring:
           predicates:
             - Path=/**
 
+
+
 dubbo:
   application:
     name: consumer

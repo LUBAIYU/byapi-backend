@@ -1,5 +1,6 @@
 package com.example.client;
 
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.HttpRequest;
 import com.example.util.SignUtil;
 
@@ -87,10 +88,15 @@ public class ByApiClient {
 
     public Map<String, String> getHeaderMap(String bodyKey) {
         Map<String, String> map = new HashMap<>(3);
-        //签名
+        //凭证
         map.put("accessKey", accessKey);
-        //密钥
-        map.put("secretKey", SignUtil.generateSign(bodyKey, secretKey));
+        //签名
+        map.put("sign", SignUtil.generateSign(bodyKey, secretKey));
+        //随机数和时间戳用于防止请求重放
+        //添加随机数
+        map.put("nonce", RandomUtil.randomNumbers(4));
+        //添加时间戳
+        map.put("timestamp", String.valueOf(System.currentTimeMillis()));
         return map;
     }
 }

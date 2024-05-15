@@ -1,4 +1,4 @@
-package com.example.gateway.config;
+package com.example.gateway.filter;
 
 import com.example.common.constant.CommonConsts;
 import com.example.common.constant.InterfaceConsts;
@@ -73,9 +73,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             return handleNoAuth(exchange.getResponse());
         }
         //校验密钥
-        String secretKey = headers.getFirst(InterfaceConsts.SECRET_KEY);
+        String headerSign = headers.getFirst(InterfaceConsts.SIGN);
         String sign = SignUtil.generateSign(CommonConsts.BODY_KEY, user.getSecretKey());
-        if (!sign.equals(secretKey)) {
+        if (!sign.equals(headerSign)) {
             return handleNoAuth(exchange.getResponse());
         }
         //判断接口是否存在
