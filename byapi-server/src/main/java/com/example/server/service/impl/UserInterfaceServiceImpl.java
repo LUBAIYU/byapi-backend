@@ -53,7 +53,7 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         wrapper.setSql("total_num=total_num + 1, left_num=left_num - 1");
         this.update(wrapper);
         //删除缓存
-        String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId);
+        String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId, interfaceId);
         redisTemplate.delete(key);
     }
 

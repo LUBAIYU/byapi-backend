@@ -14,5 +14,5 @@ public interface CommonConsts {
     String EXIST_ERROR = "已开通接口调用权限！无需再次开通！";
     String BODY_KEY = "body-key";
     String SDK_DOWNLOAD_ERROR = "SDK下载失败！";
-    String GET_INTERFACE_BY_ID_KEY = "byapi:server:getInterfaceById:%s";
+    String GET_INTERFACE_BY_ID_KEY = "byapi:server:getInterfaceById:%s:%s";
 }

@@ -239,7 +239,7 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
         Long userId = userVo.getId();
         //判断缓存是否存在
         ValueOperations valueOperations = redisTemplate.opsForValue();
-        String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId);
+        String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId, id);
         InterfaceVo interfaceVo = (InterfaceVo) valueOperations.get(key);
         if (interfaceVo != null) {
             return interfaceVo;
