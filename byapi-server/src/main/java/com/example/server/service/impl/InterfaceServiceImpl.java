@@ -53,7 +53,7 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
     @Resource
     private UserInterfaceService userInterfaceService;
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void addInterface(InterfaceAddDto interfaceAddDto) {

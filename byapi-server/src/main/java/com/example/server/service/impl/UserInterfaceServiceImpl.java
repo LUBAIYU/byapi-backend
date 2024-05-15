@@ -18,6 +18,7 @@ import com.example.server.mapper.UserInterfaceMapper;
 import com.example.server.service.InterfaceService;
 import com.example.server.service.UserInterfaceService;
 import com.example.server.service.UserService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -38,6 +39,8 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
     private UserService userService;
     @Resource
     private InterfaceService interfaceService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public void invokeCount(long interfaceId, long userId) {
@@ -49,6 +52,9 @@ public class UserInterfaceServiceImpl extends ServiceImpl<UserInterfaceMapper, U
         wrapper.eq(UserInterfaceInfo::getUserId, userId);
         wrapper.setSql("total_num=total_num + 1, left_num=left_num - 1");
         this.update(wrapper);
+        //删除缓存
+        String key = String.format(CommonConsts.GET_INTERFACE_BY_ID_KEY, userId);
+        redisTemplate.delete(key);
     }
 
     @Override
