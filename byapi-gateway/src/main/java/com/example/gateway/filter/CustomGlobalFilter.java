@@ -11,6 +11,7 @@ import com.example.common.service.DubboInterfaceService;
 import com.example.common.service.DubboUserInterfaceService;
 import com.example.common.service.DubboUserService;
 import com.example.common.utils.SignUtil;
+import com.example.gateway.util.TokenBucketLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.reactivestreams.Publisher;
@@ -52,6 +53,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private DubboUserInterfaceService dubboUserInterfaceService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    private final TokenBucketLimiter tokenBucketLimiter = new TokenBucketLimiter();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -114,6 +117,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String headerSign = headers.getFirst(InterfaceConsts.SIGN);
         String sign = SignUtil.generateSign(CommonConsts.BODY_KEY, user.getSecretKey());
         if (!sign.equals(headerSign)) {
+            return handleNoAuth(exchange.getResponse());
+        }
+        //利用令牌桶算法对请求进行限流
+        if (tokenBucketLimiter.isLimited()) {
             return handleNoAuth(exchange.getResponse());
         }
         //判断接口是否存在
