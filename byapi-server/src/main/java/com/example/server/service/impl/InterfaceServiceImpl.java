@@ -269,6 +269,7 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
             valueOperations.set(key, interfaceVo, 30, TimeUnit.MINUTES);
         } catch (Exception e) {
             log.error("redis set key error", e);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.CACHE_SET_ERROR);
         }
         return interfaceVo;
     }
@@ -308,6 +309,7 @@ public class InterfaceServiceImpl extends ServiceImpl<InterfaceMapper, Interface
             valueOperations.set(key, interfaceVoList, 30, TimeUnit.MINUTES);
         } catch (Exception e) {
             log.error("redis set key error", e);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.CACHE_SET_ERROR);
         }
         return interfaceVoList;
     }

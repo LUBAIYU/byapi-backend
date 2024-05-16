@@ -1,7 +1,10 @@
 package com.example.gateway.filter;
 
+import cn.hutool.core.util.StrUtil;
 import com.example.common.constant.CommonConsts;
 import com.example.common.constant.InterfaceConsts;
+import com.example.common.enums.ErrorCode;
+import com.example.common.exception.BusinessException;
 import com.example.common.model.entity.InterfaceInfo;
 import com.example.common.model.entity.User;
 import com.example.common.service.DubboInterfaceService;
@@ -17,6 +20,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -27,6 +32,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -44,6 +50,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private DubboInterfaceService dubboInterfaceService;
     @DubboReference
     private DubboUserInterfaceService dubboUserInterfaceService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -61,6 +69,36 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         //用户鉴权
         //获取请求头
         HttpHeaders headers = request.getHeaders();
+        //检查时间戳和随机数防止请求重放
+        String timestamp = headers.getFirst("timestamp");
+        String nonce = headers.getFirst("nonce");
+        //判断请求携带的时间戳和当前时间是否间隔十分钟之内
+        long currentTimeMillis = System.currentTimeMillis();
+        if (StrUtil.isBlank(timestamp)) {
+            return handleNoAuth(exchange.getResponse());
+        }
+        if (Math.abs(currentTimeMillis - Long.parseLong(timestamp)) > CommonConsts.TIME_GAP) {
+            return handleNoAuth(exchange.getResponse());
+        }
+        //检查随机数是否重复
+        ZSetOperations<String, Object> zSetOperations = redisTemplate.opsForZSet();
+        if (nonce == null) {
+            return handleNoAuth(exchange.getResponse());
+        }
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(CommonConsts.NONCE_KEY))) {
+            //初始化随机数集合
+            //保存随机数和时间戳再通过定时任务删除过期随机数
+            addNonceToSet(zSetOperations, nonce);
+        } else {
+            //判断随机数是否存在
+            Double score = zSetOperations.score(CommonConsts.NONCE_KEY, nonce);
+            //随机数存在则让请求失效
+            if (score != null) {
+                return handleNoAuth(exchange.getResponse());
+            }
+            //保存随机数
+            addNonceToSet(zSetOperations, nonce);
+        }
         String accessKey = headers.getFirst(InterfaceConsts.ACCESS_KEY);
         User user = null;
         try {
@@ -89,6 +127,21 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             return handleInvokeError(exchange.getResponse());
         }
         return handleResponse(exchange, chain, interfaceInfo.getId(), user.getId());
+    }
+
+    /**
+     * 保存随机数
+     *
+     * @param zSetOperations zSet集合
+     * @param nonce          随机数
+     */
+    private void addNonceToSet(ZSetOperations<String, Object> zSetOperations, String nonce) {
+        try {
+            zSetOperations.add(CommonConsts.NONCE_KEY, nonce, System.currentTimeMillis() / 1000.0);
+        } catch (Exception e) {
+            log.error("redis set key error", e);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.CACHE_SET_ERROR);
+        }
     }
 
     /**

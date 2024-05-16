@@ -16,4 +16,8 @@ public interface CommonConsts {
     String SDK_DOWNLOAD_ERROR = "SDK下载失败！";
     String GET_INTERFACE_BY_ID_KEY = "byapi:server:getInterfaceById:%s:%s";
     String LIST_INVOKE_RECORDS_KEY = "byapi:server:listInvokeRecords:%s";
+    Integer TIME_GAP = 10 * 60 * 1000;
+    String NONCE_KEY = "byapi:gateway:filter:nonce";
+    String CACHE_SET_ERROR = "缓存设置失败！";
+    String CACHE_DEL_ERROR = "缓存删除失败！";
 }
