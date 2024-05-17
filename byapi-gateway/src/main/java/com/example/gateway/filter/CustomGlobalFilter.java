@@ -11,7 +11,7 @@ import com.example.common.service.DubboInterfaceService;
 import com.example.common.service.DubboUserInterfaceService;
 import com.example.common.service.DubboUserService;
 import com.example.common.utils.SignUtil;
-import com.example.gateway.util.TokenBucketLimiter;
+import com.example.common.utils.TokenBucketLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.reactivestreams.Publisher;
@@ -53,8 +53,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private DubboUserInterfaceService dubboUserInterfaceService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-
-    private final TokenBucketLimiter tokenBucketLimiter = new TokenBucketLimiter();
+    @Resource
+    private TokenBucketLimiter tokenBucketLimiter;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

@@ -1,4 +1,6 @@
-package com.example.gateway.util;
+package com.example.common.utils;
+
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -7,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author by
  */
+@Component
 public class TokenBucketLimiter {
     /**
      * 上一次获取令牌的时间

@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 /**
  * @author by
  */
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class},scanBasePackages = {"com.example.gateway","com.example.common"})
 @EnableDubbo
 public class ByapiGatewayApplication {
 
