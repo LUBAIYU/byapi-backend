@@ -17,9 +17,9 @@ spring:
       path: /api
 
   mail:
-    username: 1296800094@qq.com
+    username: # 此处填自己的邮箱
     # 授权码
-    password: qiwtdnsvasachebc
+    password: # 此处填自己的邮箱授权码
     host: smtp.qq.com
     default-encoding: utf-8
     # 开启加密验证
