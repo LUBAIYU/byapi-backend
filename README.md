@@ -14,9 +14,3 @@
 + 网关 Gateway
 + RPC框架 Dubbo
 + 自定义SDK
-
-<br>
-
-系统架构图：
-
-![](https://img2.imgtp.com/2024/05/10/1ntFYg25.png)
