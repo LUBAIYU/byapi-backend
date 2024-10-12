@@ -37,10 +37,10 @@
                 u.id = #{dto.id}
             </if>
             <if test="dto.userName != null and dto.userName != ''">
-                and u.userName like concat('%',#{dto.userName},'%')
+                and u.user_name like concat('%',#{dto.userName},'%')
             </if>
             <if test="dto.userAccount != null and dto.userAccount != ''">
-                and u.userAccount like concat('%',#{dto.userAccount},'%')
+                and u.user_account like concat('%',#{dto.userAccount},'%')
             </if>
             <if test="dto.gender != null">
                 and u.gender = #{dto.gender}
