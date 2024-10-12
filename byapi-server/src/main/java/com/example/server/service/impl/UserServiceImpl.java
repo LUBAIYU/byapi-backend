@@ -7,7 +7,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.common.constant.CommonConsts;
@@ -15,11 +15,7 @@ import com.example.common.constant.UserConsts;
 import com.example.common.enums.ErrorCode;
 import com.example.common.enums.RoleEnum;
 import com.example.common.exception.BusinessException;
-import com.example.common.model.dto.EmailDto;
-import com.example.common.model.dto.LoginDto;
-import com.example.common.model.dto.RegisterDto;
-import com.example.common.model.dto.UserPageDto;
-import com.example.common.model.dto.UserUpdateDto;
+import com.example.common.model.dto.*;
 import com.example.common.model.entity.User;
 import com.example.common.model.vo.KeyVo;
 import com.example.common.model.vo.UserVo;
@@ -40,14 +36,9 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
@@ -74,6 +65,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Resource
     private JavaMailSenderImpl javaMailSender;
 
+    @Resource
+    private UserMapper userMapper;
+
     /**
      * 创建线程池
      */
@@ -87,30 +81,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         //账号长度不能小于4位
         if (userAccount.length() < UserConsts.USER_NAME_LENGTH) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_NAME_ERROR);
         }
+
         //密码长度不能小于8位
         if (userPassword.length() < UserConsts.USER_PASSWORD_LENGTH) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_PASSWORD_ERROR);
         }
+
         //判断用户是否存在
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUserAccount, userAccount);
-        User user = this.getOne(wrapper);
+        User user = this.lambdaQuery()
+                .eq(User::getUserAccount, userAccount)
+                .one();
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_PARAMS_ERROR);
         }
+
         //判断用户是否被禁用
         if (user.getStatus() == 1) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.ACCOUNT_FORBIDDEN);
         }
+
         //判断密码是否正确
         String encryptPassword = DigestUtil.md5Hex(userPassword + user.getSalt());
         if (!user.getUserPassword().equals(encryptPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_PARAMS_ERROR);
         }
+
         //用户信息脱敏
         UserVo userVo = new UserVo();
         BeanUtil.copyProperties(user, userVo);
@@ -129,6 +129,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (StringUtils.isAnyBlank(userAccount, userPassword, confirmPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         //判断参数长度是否合法
         if (userAccount.length() < UserConsts.USER_NAME_LENGTH) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_NAME_ERROR);
@@ -136,17 +137,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userPassword.length() < UserConsts.USER_PASSWORD_LENGTH) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_PASSWORD_ERROR);
         }
+
         //判断确认密码和密码是否一致
         if (!userPassword.equals(confirmPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.PASSWORD_NOT_EQUAL);
         }
         //判断用户名是否存在
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getUserName, userAccount);
-        User user = this.getOne(wrapper);
+        User user = this.lambdaQuery()
+                .eq(User::getUserAccount, userAccount)
+                .one();
         if (user != null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.USER_NAME_EXIST);
         }
+
         //生成一个随机的盐
         String salt = RandomUtil.randomString(4);
         //对密码进行加密
@@ -185,10 +188,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (StrUtil.isBlank(userAccount) && StrUtil.isBlank(email)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+
         //查询邮箱是否存在
-        LambdaUpdateWrapper<User> wrapper = new LambdaUpdateWrapper<>();
-        wrapper.eq(User::getEmail, email);
-        User user = this.getOne(wrapper);
+        User user = this.lambdaQuery()
+                .eq(User::getEmail, email)
+                .one();
+
         //获取当前登录用户
         UserVo userVo = this.getLoginUser(request);
         //如果邮箱存在且邮箱为其他用户所有，则抛出异常
@@ -206,34 +211,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public PageBean<User> listUsersByPage(UserPageDto userPageDto) {
-        Long id = userPageDto.getId();
-        String userName = userPageDto.getUserName();
-        String userAccount = userPageDto.getUserAccount();
-        Integer gender = userPageDto.getGender();
-        Integer status = userPageDto.getStatus();
-        Integer current = userPageDto.getCurrent();
-        Integer pageSize = userPageDto.getPageSize();
-        if (current == null || current <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.PAGE_PARAMS_ERROR);
-        }
-        if (pageSize == null || pageSize < 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, CommonConsts.PAGE_PARAMS_ERROR);
-        }
-        //添加分页条件
-        Page<User> page = new Page<>(current, pageSize);
-        //添加查询条件
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(id != null, User::getId, userPageDto.getId());
-        wrapper.like(StrUtil.isNotBlank(userName), User::getUserName, userPageDto.getUserName());
-        wrapper.like(StrUtil.isNotBlank(userAccount), User::getUserAccount, userPageDto.getUserAccount());
-        wrapper.eq(gender != null, User::getGender, userPageDto.getGender());
-        wrapper.eq(status != null, User::getStatus, userPageDto.getStatus());
-        //查询
-        this.page(page, wrapper);
-        //获取数据
-        long total = page.getTotal();
-        List<User> records = page.getRecords();
-        return PageBean.of(total, records);
+        // 构建分页条件
+        IPage<User> pageCondition = new Page<>(userPageDto.getCurrent(), userPageDto.getPageSize());
+        // 查询
+        IPage<User> page = userMapper.listUsersByPage(pageCondition, userPageDto);
+        // 返回
+        return PageBean.of(page.getTotal(), page.getRecords());
     }
 
     @Override

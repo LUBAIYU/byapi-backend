@@ -5,20 +5,20 @@
 <mapper namespace="com.example.server.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.example.common.model.entity.User">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userName" column="user_name" jdbcType="VARCHAR"/>
-            <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
-            <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
-            <result property="gender" column="gender" jdbcType="TINYINT"/>
-            <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="userRole" column="user_role" jdbcType="VARCHAR"/>
-            <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
-            <result property="salt" column="salt" jdbcType="VARCHAR"/>
-            <result property="accessKey" column="access_key" jdbcType="VARCHAR"/>
-            <result property="secretKey" column="secret_key" jdbcType="VARCHAR"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userAccount" column="user_account" jdbcType="VARCHAR"/>
+        <result property="userAvatar" column="user_avatar" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="userRole" column="user_role" jdbcType="VARCHAR"/>
+        <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
+        <result property="salt" column="salt" jdbcType="VARCHAR"/>
+        <result property="accessKey" column="access_key" jdbcType="VARCHAR"/>
+        <result property="secretKey" column="secret_key" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -28,4 +28,26 @@
         access_key,secret_key,create_time,
         update_time,is_deleted
     </sql>
+
+    <select id="listUsersByPage" resultType="com.example.common.model.entity.User">
+        select u.*
+        from byapi.user u
+        <where>
+            <if test="dto.id != null">
+                u.id = #{dto.id}
+            </if>
+            <if test="dto.userName != null and dto.userName != ''">
+                and u.userName like concat('%',#{dto.userName},'%')
+            </if>
+            <if test="dto.userAccount != null and dto.userAccount != ''">
+                and u.userAccount like concat('%',#{dto.userAccount},'%')
+            </if>
+            <if test="dto.gender != null">
+                and u.gender = #{dto.gender}
+            </if>
+            <if test="dto.status != null">
+                and u.status = #{dto.status}
+            </if>
+        </where>
+    </select>
 </mapper>
