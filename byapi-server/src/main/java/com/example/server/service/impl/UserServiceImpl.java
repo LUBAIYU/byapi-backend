@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -391,9 +392,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         //判断邮箱是否存在
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getEmail, email);
-        User user = this.getOne(wrapper);
+        User user = this.lambdaQuery()
+                .eq(User::getEmail, email)
+                .one();
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_PARAMS_ERROR);
         }
@@ -427,9 +428,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         //判断邮箱是否存在
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getEmail, email);
-        User user = this.getOne(wrapper);
+        User user = this.lambdaQuery()
+                .eq(User::getEmail, email)
+                .one();
         if (user != null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, UserConsts.EMAIL_PARAMS_ERROR);
         }
@@ -446,9 +447,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public KeyVo getKeyById(HttpServletRequest request) {
         UserVo userVo = this.getLoginUser(request);
         Long userId = userVo.getId();
-        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getId, userId);
-        User user = this.getOne(wrapper);
+        User user = this.lambdaQuery()
+                .eq(User::getId, userId)
+                .one();
         KeyVo keyVo = new KeyVo();
         keyVo.setAccessKey(user.getAccessKey());
         keyVo.setSecretKey(user.getSecretKey());
